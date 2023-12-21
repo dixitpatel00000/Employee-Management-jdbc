@@ -14,11 +14,13 @@ public class Controller {
 	public static Connection createConnection() {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
-			String user = "root";
-			String pass = "Wjdxo0703";
-			String path = "jdbc:mysql://localhost:3306/employee";
+			String user = "postgres";
+			String pass = "admin@123";
+			String path = "jdbc:postgresql://localhost/postgres";
 
 			con = DriverManager.getConnection(path, user, pass);
+			
+			
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
