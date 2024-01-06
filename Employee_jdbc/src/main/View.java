@@ -2,6 +2,7 @@ package main;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import com.mysql.cj.protocol.Resultset;
@@ -31,6 +32,9 @@ public class View {
 			System.out.println("3.SEARCH");
 			System.out.println("4.DELETE");
 			System.out.println("5.UPDATE");
+			System.out.println("6.DELETE ALL");
+			System.out.println("7.NO OF EMPSAL > THAN");
+			System.out.println("8.INSERT BY CALL");
 			System.out.println("0.EXIT");
 			System.out.println();
 			System.out.print("Enter your choice : ");
@@ -38,21 +42,34 @@ public class View {
 			switch (ch) {
 
 			case 1: {
-				System.out.print("Enter id : ");
-				int id = s.nextInt();
-				System.out.print("Enter Emp name : ");
-				String name = s1.nextLine();
-				System.out.print("Enter Emp email : ");
-				String email = s1.nextLine();
-				System.out.print("Enter Salary : ");
-				int salary = s.nextInt();
-				if (c.insert(new Employee(name, id, salary, email))) {
-					System.out.println();
-					System.out.println("record inserted succesfully");
-				} else {
-					System.out.println("unsuccesful insertion");
+				ArrayList<Employee> list = new ArrayList<Employee>();
+				while (true) {
+					System.out.print("Enter id : ");
+					int id = s.nextInt();
+					System.out.print("Enter Emp name : ");
+					String name = s1.nextLine();
+					System.out.print("Enter Emp email : ");
+					String email = s1.nextLine();
+					System.out.print("Enter Salary : ");
+					int salary = s.nextInt();
+
+					list.add(new Employee(name, id, salary, email));
+					System.out.println("Do you want to enter more records (Y/N)");
+					String flag = s1.nextLine().toUpperCase();
+					if (flag.equals("N")) {
+						break;
+					}
+
 				}
 
+				if (c.insert(list)) {
+					System.out.println();
+					System.err.println("record inserted succesfully");
+				} else {
+					System.err.println("unsuccesful insertion");
+
+				}
+				list.clear();
 				System.out.println("---------------------");
 				break;
 			}
@@ -80,7 +97,7 @@ public class View {
 					}
 
 				} else {
-					System.out.println("enter a valid option");
+					System.err.println("enter a valid option");
 				}
 				System.out.println("---------------------");
 				break;
@@ -119,9 +136,9 @@ public class View {
 				int id = s.nextInt();
 				if (c.delete(id)) {
 
-					System.out.println("record deleted");
+					System.err.println("record deleted");
 				} else {
-					System.out.println("record not deleted");
+					System.err.println("record not deleted");
 				}
 				System.out.println("---------------------");
 				break;
@@ -136,7 +153,7 @@ public class View {
 				try {
 					if (!set.isBeforeFirst()) {
 
-						System.out.println("record not found");
+						System.err.println("record not found");
 						break;
 					}
 				} catch (SQLException e) {
@@ -154,25 +171,51 @@ public class View {
 				int salary = (s.nextInt());
 
 				if (c.update(originalid, new Employee(name, id, salary, email))) {
-					System.out.println("record updated");
+					System.err.println("record updated");
 				} else {
-					System.out.println("record not found");
+					System.err.println("record not found");
 				}
 
 				System.out.println("---------------------");
 				break;
 			}
+
+			case 6: {
+				if (c.deleteAll()) {
+					System.err.println("all records deleted succesfully");
+				} else {
+					System.err.println("error");
+				}
+				break;
+
+			}
+
+			case 7: {
+				System.out.println("no of salaries greater than:");
+
+				c.countsal(s.nextInt());
+				break;
+
+			}
+
+			case 8: {
+				
+				c.insertbycall();
+				break;
+
+			}
+
 			case 0: {
 				break;
 			}
 			default: {
-				System.out.println("enter a valid option ");
+				System.err.println("enter a valid option ");
 				System.out.println();
 
 			}
 			}
 		} while (ch != 0);
 		System.out.println();
-		System.out.println("END");
+		System.err.println("END");
 	}
 }
