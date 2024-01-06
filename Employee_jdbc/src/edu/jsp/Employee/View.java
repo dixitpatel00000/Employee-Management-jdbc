@@ -1,4 +1,4 @@
-package main;
+package edu.jsp.Employee;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,13 +27,13 @@ public class View {
 		int ch;
 		do {
 
-			System.out.println("1.INSERT");
-			System.out.println("2.DISPLAY");
+			System.out.println("1.INSERT BY BATCH");
+			System.out.println("2.DISPLAY & SORT");
 			System.out.println("3.SEARCH");
 			System.out.println("4.DELETE");
 			System.out.println("5.UPDATE");
 			System.out.println("6.DELETE ALL");
-			System.out.println("7.NO OF EMPSAL > THAN");
+			System.out.println("7.COUNT NO OF SAL GREATER THAN");
 			System.out.println("8.INSERT BY CALL");
 			System.out.println("0.EXIT");
 			System.out.println();
@@ -42,7 +42,8 @@ public class View {
 			switch (ch) {
 
 			case 1: {
-				ArrayList<Employee> list = new ArrayList<Employee>();
+				int count = 0;
+
 				while (true) {
 					System.out.print("Enter id : ");
 					int id = s.nextInt();
@@ -52,8 +53,7 @@ public class View {
 					String email = s1.nextLine();
 					System.out.print("Enter Salary : ");
 					int salary = s.nextInt();
-
-					list.add(new Employee(name, id, salary, email));
+					count += c.insert(new Employee(name, id, salary, email));
 					System.out.println("Do you want to enter more records (Y/N)");
 					String flag = s1.nextLine().toUpperCase();
 					if (flag.equals("N")) {
@@ -61,23 +61,15 @@ public class View {
 					}
 
 				}
-
-				if (c.insert(list)) {
-					System.out.println();
-					System.err.println("record inserted succesfully");
-				} else {
-					System.err.println("unsuccesful insertion");
-
-				}
-				list.clear();
-				System.out.println("---------------------");
+				System.out.println(count + " no of records inserted");
 				break;
+
 			}
 
 			case 2: {
-				System.out.println("enter sorting method: 1.NAME");
-				System.out.println("enter sorting method: 2.ID");
-				System.out.println("enter sorting method: 3.SALARY");
+				System.out.println("enter sorting method: 1.ID");
+				System.out.println("enter sorting method: 2.SALARY");
+				System.out.println("enter sorting method: 3.NAME");
 				int option = s.nextInt();
 				if (option < 4 && option > 0) {
 					ResultSet set = c.display(option);
@@ -199,8 +191,26 @@ public class View {
 			}
 
 			case 8: {
-				
-				c.insertbycall();
+				int count = 0;
+
+				while (true) {
+					System.out.print("Enter id : ");
+					int id = s.nextInt();
+					System.out.print("Enter Emp name : ");
+					String name = s1.nextLine();
+					System.out.print("Enter Emp email : ");
+					String email = s1.nextLine();
+					System.out.print("Enter Salary : ");
+					int salary = s.nextInt();
+					count += c.insertbycall(new Employee(name, id, salary, email));
+					System.out.println("Do you want to enter more records (Y/N)");
+					String flag = s1.nextLine().toUpperCase();
+					if (flag.equals("N")) {
+						break;
+					}
+
+				}
+				System.out.println(count + " no of records inserted");
 				break;
 
 			}

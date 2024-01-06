@@ -1,4 +1,4 @@
-package main;
+package edu.jsp.Employee;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -8,51 +8,37 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import edu.jsp.connectionPool.ConnectionPool;
+
 public class Controller {
 
-	static Connection con;
-
-	public static Connection createConnection() {
+	public int insert(Employee... e) {
 		try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
-			String user = "postgres";
-			String pass = "admin@123";
-			String path = "jdbc:postgresql://localhost/postgres";
-
-			con = DriverManager.getConnection(path, user, pass);
-
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-		return con;
-
-	}
-
-	public boolean insert(ArrayList<Employee> list) {
-		try {
-			Connection con = createConnection();
+			int count = 0;
+			Connection con = ConnectionPool.getConnection();
 			String query = "insert into emp(empid,empname,empemail,empsal) values(?,?,?,?)";
 
 			PreparedStatement ps = con.prepareStatement(query);
 
-			for (int i = 0; i < list.size(); i++) {
+			for (Employee emp : e) {
 
-				ps.setInt(1, list.get(i).getId());
-				ps.setString(2, list.get(i).getName());
-				ps.setString(3, list.get(i).getEmail());
-				ps.setInt(4, list.get(i).getSalary());
+				ps.setInt(1, emp.getId());
+				ps.setString(2, emp.getName());
+				ps.setString(3, emp.getEmail());
+				ps.setInt(4, emp.getSalary());
 				ps.addBatch();
+				count++;
 			}
 
 			ps.executeBatch();
-
-			con.close();
-			return true;
+			ps.close();
+			ConnectionPool.recieveConnection(con);
+			return count;
 
 		} catch (Exception ex) {
 
 			ex.printStackTrace();
-			return false;
+			return -1;
 		}
 
 	}
@@ -61,16 +47,19 @@ public class Controller {
 		ResultSet set = null;
 		String query = null;
 		try {
-			Connection con = createConnection();
+			Connection con = ConnectionPool.getConnection();
 			switch (key) {
 			case 1: {
-				query = "select * from emp order by empname";
+				query = "select * from emp order by empid";
+				break;
 			}
 			case 2: {
-				query = "select * from emp order by empid";
+				query = "select * from emp order by empsal";
+				break;
 			}
 			case 3: {
-				query = "select * from emp order by empsal";
+				query = "select * from emp order by empname";
+				break;
 			}
 
 			}
@@ -79,10 +68,11 @@ public class Controller {
 
 			set = ps.executeQuery();
 
-			con.close();
+			ConnectionPool.recieveConnection(con);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
+
 		return set;
 
 	}
@@ -90,7 +80,7 @@ public class Controller {
 	public ResultSet search(int id) {
 		ResultSet set = null;
 		try {
-			Connection con = createConnection();
+			Connection con = ConnectionPool.getConnection();
 			String query = "select * from emp where empid=?";
 
 			PreparedStatement ps = con.prepareStatement(query);
@@ -98,7 +88,7 @@ public class Controller {
 
 			set = ps.executeQuery();
 
-			con.close();
+			ConnectionPool.recieveConnection(con);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -108,7 +98,7 @@ public class Controller {
 
 	public boolean delete(int id) {
 		try {
-			Connection con = createConnection();
+			Connection con = ConnectionPool.getConnection();
 			String query = "delete from emp where empid=?";
 
 			PreparedStatement ps = con.prepareStatement(query);
@@ -116,7 +106,7 @@ public class Controller {
 
 			ps.executeUpdate();
 
-			con.close();
+			ConnectionPool.recieveConnection(con);
 			return true;
 
 		} catch (Exception ex) {
@@ -128,14 +118,14 @@ public class Controller {
 
 	public boolean deleteAll() {
 		try {
-			Connection con = createConnection();
+			Connection con = ConnectionPool.getConnection();
 			String query = "delete from emp";
 
 			PreparedStatement ps = con.prepareStatement(query);
 
 			ps.executeUpdate();
 
-			con.close();
+			ConnectionPool.recieveConnection(con);
 			return true;
 
 		} catch (Exception ex) {
@@ -147,7 +137,7 @@ public class Controller {
 
 	public boolean update(int id, Employee e) {
 		try {
-			Connection con = createConnection();
+			Connection con = ConnectionPool.getConnection();
 			String query = "update emp set empid=?,empname=?,empemail=?,empsal=? where empid=?";
 
 			PreparedStatement ps = con.prepareStatement(query);
@@ -159,7 +149,7 @@ public class Controller {
 
 			ps.executeUpdate();
 
-			con.close();
+			ConnectionPool.recieveConnection(con);
 			return true;
 
 		} catch (Exception ex) {
@@ -169,43 +159,39 @@ public class Controller {
 
 	}
 
-	public void insertbycall() {
-		Scanner s = new Scanner(System.in);
-		Scanner s1 = new Scanner(System.in);
+	public int insertbycall(Employee... e) {
+
 		try {
-			Connection con = createConnection();
+			Connection con = ConnectionPool.getConnection();
 			String sql = "call emp_insert(?,?,?,?)";
 			CallableStatement stmt = con.prepareCall(sql);
+			int count = 0;
+			for (Employee emp : e) {
 
-			while (true) {
-				System.out.print("Enter id : ");
-				stmt.setInt(1, s.nextInt());
-				System.out.print("Enter Emp name : ");
-				stmt.setString(2, s1.nextLine());
-				System.out.print("Enter Emp email : ");
-				stmt.setString(3, s1.nextLine());
-				System.out.print("Enter Salary : ");
-				stmt.setInt(4, s.nextInt());
-				stmt.executeUpdate();
-				System.out.println("Do you want to enter more records (Y/N)");
-				String flag = s1.nextLine().toUpperCase();
-				if (flag.equals("N")) {
-					break;
-				}
+				stmt.setInt(1, emp.getId());
+				stmt.setString(2, emp.getName());
+				stmt.setString(3, emp.getEmail());
+				stmt.setInt(4, emp.getSalary());
+				count += stmt.executeUpdate();
+
 			}
 
 			stmt.close();
-			con.close();
+			ConnectionPool.recieveConnection(con);
+			return count;
 
-		} catch (Exception e) {
-		
+		} catch (
+
+		Exception ex) {
+			ex.printStackTrace();
+			return -1;
 		}
 
 	}
 
 	public void countsal(int sal) {
 		try {
-			Connection con = createConnection();
+			Connection con = ConnectionPool.getConnection();
 			String query = "select count_by_sal(?)";
 
 			CallableStatement ps = con.prepareCall(query);
@@ -216,7 +202,7 @@ public class Controller {
 			int count = rs.getInt(1);
 			System.out.println(count);
 
-			con.close();
+			ConnectionPool.recieveConnection(con);
 
 		} catch (Exception ex) {
 			ex.printStackTrace();

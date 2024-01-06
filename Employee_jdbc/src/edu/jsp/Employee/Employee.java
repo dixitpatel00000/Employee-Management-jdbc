@@ -1,4 +1,4 @@
-package main;
+package edu.jsp.Employee;
 
 public class Employee {
 	private String name;
