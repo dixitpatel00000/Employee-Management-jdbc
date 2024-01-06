@@ -185,7 +185,8 @@ public class View {
 			case 7: {
 				System.out.println("no of salaries greater than:");
 
-				c.countsal(s.nextInt());
+				int count = c.countsal(s.nextInt());
+				System.out.println("no of salaries greater than input are " + count);
 				break;
 
 			}

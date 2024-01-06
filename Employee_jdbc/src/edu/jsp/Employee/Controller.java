@@ -189,7 +189,7 @@ public class Controller {
 
 	}
 
-	public void countsal(int sal) {
+	public int countsal(int sal) {
 		try {
 			Connection con = ConnectionPool.getConnection();
 			String query = "select count_by_sal(?)";
@@ -200,12 +200,12 @@ public class Controller {
 			ResultSet rs = ps.executeQuery();
 			rs.next();
 			int count = rs.getInt(1);
-			System.out.println(count);
-
 			ConnectionPool.recieveConnection(con);
+			return count;
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
+			return -1;
 
 		}
 
